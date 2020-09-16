@@ -273,7 +273,7 @@ ELSIP <- function (x, y, subsample = c("none", "up", "down"), imp_n = 10,
       stack <- lapply(x, function (m) m[[s]])
       stack_pred(stack, all_models, pairwise_stack)
     })
-    names(ens_pred) <- names(x[[1]])
+    names(ens_preds) <- names(x[[1]])
 
     if ("Unknown" %in% names(x)) {
       pred_args$unkX <- ens_preds$Unknown$ens_stack
@@ -282,8 +282,8 @@ ELSIP <- function (x, y, subsample = c("none", "up", "down"), imp_n = 10,
     # Use an ensemble classifier to make final classification
     if (verbose) cat("Training ensemble classifier...\n")
     ens_model <- train(
-      x = ens_pred$Training$ens_stack,
-      y = ens_pred$Training$all_preds[[1]]$obs,
+      x = ens_preds$Training$ens_stack,
+      y = ens_preds$Training$all_preds[[1]]$obs,
       method = meta_classifier$method,
       trControl = meta_classifier$trainControl,
       tuneGrid = meta_classifier$tuneGrid,
@@ -291,13 +291,13 @@ ELSIP <- function (x, y, subsample = c("none", "up", "down"), imp_n = 10,
     )
 
     res$models <- all_models
-    res@ens_preds <- ens_pred
+    res$ens_preds <- ens_preds
     res$ens_model <- ens_model
     # Use ensemble model to classify the ensemble test observations
     if (verbose) cat("Predicting training ensemble model...\n")
-    pred_args$models = list(ens_model)
-    pred_args$testX <- ens_pred$Test$ens_stack
-    pred_args$testY = ens_pred$Test$all_preds[[1]]$obs
+    pred_args$models <- list(ens_model)
+    pred_args$testX <- ens_preds$Test$ens_stack
+    pred_args$testY <- ens_preds$Test$all_preds[[1]]$obs
     res$preds <- do.call(extractPrediction, pred_args)
   } else {
     class_col <- names(x[[1]]$Test) %in% c("Class", "data_type")
