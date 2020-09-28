@@ -5,37 +5,28 @@
 \title{Ensemble learning using stacked imputation predictions}
 \usage{
 ELSIP(
-  x,
-  y,
+  data,
   subsample = c("none", "up", "down"),
-  imp_n = 10,
-  imp_method = c("pmm", "rf", "mean", "none"),
+  n_imp = 10,
+  imp_method = c("mean", "median", "mice_pmm", "mice_rf", "mipca"),
   train_prop = logical(),
   classifier = list(),
   pairwise_stack = TRUE,
   meta_classifier = list(),
   ensemble_single = FALSE,
   seed = NULL,
-  verbose = FALSE,
-  ...
+  verbose = FALSE
 )
 }
 \arguments{
-\item{x}{an data frame object where samples are in rows and features are in
-columns.}
-
-\item{y}{a factor vector indicating the class for each observation. All
-samples intended for model training and testing purposes should have an
-assigned class. Any sample that does not have an assigned class
-(i.e., \code{NA}) will be interpreted as an unknown sample and classified
-after model training and testing.}
+\item{data}{An \code{\link{ELSIPData}} object.}
 
 \item{subsample}{a single length character indicating which
 subsampling to apply to the training set prior to model tuning. The
 default (\code{"none"}) is for no subsampling; options are \code{"up"}
 and \code{"down"}.}
 
-\item{imp_n}{an integer indicating the number of multiple imputations to
+\item{n_imp}{an integer indicating the number of multiple imputations to
 generate.}
 
 \item{imp_method}{a character vector indicating the imputation method to
@@ -45,10 +36,9 @@ variables, or a vector indicating the method to use for each variable.}
 \item{train_prop}{a numeric indicating what proportion of observations will
 constitute the training dataset.}
 
-\item{classifier}{a list (or list of lists) defining the model(s) and
-model parameters to use during classification of the multiply imputed
-training and testing data. The list (or each list item) should contain
-the following named items:
+\item{classifier}{a list defining the model and model parameters to use
+during classification of the multiply imputed datasets. The list should
+contain the following named items:
 \describe{
   \item{method}{a single length character vector indicating the
     classification method to use with \code{caret}.}
@@ -73,41 +63,13 @@ ensembling on a singly imputed dataset (i.e., when \code{imp_n} is 1).}
 \item{seed}{an integer value to initialise the multiple imputation.}
 
 \item{verbose}{output information to the console during multiple imputation.}
-
-\item{...}{extra options that will be passed on to the classification
-function.}
 }
 \value{
-A list containing the models and predictions generated during the
-  analysis. The contents of the list will differ depending on whether the
-  predictions have been ensembled from multiple imputations (i.e., if
-  \code{imp_n} > 1, or if \code{imp_n} is 1 and \code{ensemble_single} is
-  TRUE). If no ensembling was used, the list will contain:
-  \describe{
-    \item{model}{the model generated from \code{classifier} using a training
-      sample taken from \code{x}; and}
-    \item{pred}{the class predictions, calculated using
-      \code{\link[caret:extractPrediction]{extractPrediction}}, from the
-      \code{classifier} model for each observation in the training, testing,
-        and unknown (if present) variables of \code{x}.}
-  }
-  If ensembling was used, the list will contain:
-  \describe{
-    \item{models}{a list of models generated from the application of
-      \code{classifier} to each of the \code{imp_n} imputed datasets;}
-    \item{ens_preds}{a list of \code{data.frame}s containing the ensembled
-      predictions of each of the \code{imp_n} models for the training, test
-      and unknown (if provided) samples taken from \code{x}. Note that if
-      \code{pairwise_stack} is TRUE, each \code{data.frame} will contain
-      \eqn{imp_n^2} prediction columns.}
-    \item{ens_model}{the model generated from \code{meta-classifier} using
-      the training sample taken from \code{ens_preds}; and}
-    \item{preds}{the class predictions, calculated using
-      \code{\link[caret:extractPrediction]{extractPrediction}}, from the
-      \code{meta-classifier} model for each observation in the training,
-        testing, and unknown (if present) predictions of \code{ens_preds}.}
-  }
+An \code{\link{ELSIPTrain}} object.
 }
 \description{
-Ensemble learning using stacked imputation predictions
+This is a convenience function for performing ensemble learning in
+\code{ELSIP}. It equivalent to using, in order, \code{\link{subsample_data}}
+(optional), \code{\link{partition_data}}, \code{\link{impute_data}},
+\code{\link{train.ELSIPData}}, and \code{\link{ensemble}} (optional).
 }

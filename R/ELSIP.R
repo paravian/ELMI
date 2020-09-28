@@ -1,32 +1,27 @@
 #' Ensemble learning using stacked imputation predictions
 #'
-#' @importFrom caret createDataPartition downSample extractPrediction train upSample
-#' @importFrom checkmate asInt assertNames checkDataFrame checkFactor checkList checkLogical qassert
+#' This is a convenience function for performing ensemble learning in
+#' \code{ELSIP}. It equivalent to using, in order, \code{\link{subsample_data}}
+#' (optional), \code{\link{partition_data}}, \code{\link{impute_data}},
+#' \code{\link{train.ELSIPData}}, and \code{\link{ensemble}} (optional).
+#' @importFrom checkmate asInt assert assertClass assertList assertLogical
+#'   qassert
 #' @importFrom magrittr %>%
-#' @importFrom mice mice complete
-#' @importFrom stats predict
-#' @param x an data frame object where samples are in rows and features are in
-#'   columns.
-#' @param y a factor vector indicating the class for each observation. All
-#'   samples intended for model training and testing purposes should have an
-#'   assigned class. Any sample that does not have an assigned class
-#'   (i.e., \code{NA}) will be interpreted as an unknown sample and classified
-#'   after model training and testing.
+#' @param data An \code{\link{ELSIPData}} object.
 #' @param subsample a single length character indicating which
 #'   subsampling to apply to the training set prior to model tuning. The
 #'   default (\code{"none"}) is for no subsampling; options are \code{"up"}
 #'   and \code{"down"}.
-#' @param imp_n an integer indicating the number of multiple imputations to
+#' @param n_imp an integer indicating the number of multiple imputations to
 #'   generate.
 #' @param imp_method a character vector indicating the imputation method to
 #'   use with \code{mice}. Can be either a single character to use for all
 #'   variables, or a vector indicating the method to use for each variable.
 #' @param train_prop a numeric indicating what proportion of observations will
 #'   constitute the training dataset.
-#' @param classifier a list (or list of lists) defining the model(s) and
-#'   model parameters to use during classification of the multiply imputed
-#'   training and testing data. The list (or each list item) should contain
-#'   the following named items:
+#' @param classifier a list defining the model and model parameters to use
+#'   during classification of the multiply imputed datasets. The list should
+#'   contain the following named items:
 #'   \describe{
 #'     \item{method}{a single length character vector indicating the
 #'       classification method to use with \code{caret}.}
@@ -46,269 +41,66 @@
 #'   ensembling on a singly imputed dataset (i.e., when \code{imp_n} is 1).
 #' @param seed an integer value to initialise the multiple imputation.
 #' @param verbose output information to the console during multiple imputation.
-#' @param ... extra options that will be passed on to the classification
-#'   function.
-#' @return A list containing the models and predictions generated during the
-#'   analysis. The contents of the list will differ depending on whether the
-#'   predictions have been ensembled from multiple imputations (i.e., if
-#'   \code{imp_n} > 1, or if \code{imp_n} is 1 and \code{ensemble_single} is
-#'   TRUE). If no ensembling was used, the list will contain:
-#'   \describe{
-#'     \item{model}{the model generated from \code{classifier} using a training
-#'       sample taken from \code{x}; and}
-#'     \item{pred}{the class predictions, calculated using
-#'       \code{\link[caret:extractPrediction]{extractPrediction}}, from the
-#'       \code{classifier} model for each observation in the training, testing,
-#'         and unknown (if present) variables of \code{x}.}
-#'   }
-#'   If ensembling was used, the list will contain:
-#'   \describe{
-#'     \item{models}{a list of models generated from the application of
-#'       \code{classifier} to each of the \code{imp_n} imputed datasets;}
-#'     \item{ens_preds}{a list of \code{data.frame}s containing the ensembled
-#'       predictions of each of the \code{imp_n} models for the training, test
-#'       and unknown (if provided) samples taken from \code{x}. Note that if
-#'       \code{pairwise_stack} is TRUE, each \code{data.frame} will contain
-#'       \eqn{imp_n^2} prediction columns.}
-#'     \item{ens_model}{the model generated from \code{meta-classifier} using
-#'       the training sample taken from \code{ens_preds}; and}
-#'     \item{preds}{the class predictions, calculated using
-#'       \code{\link[caret:extractPrediction]{extractPrediction}}, from the
-#'       \code{meta-classifier} model for each observation in the training,
-#'         testing, and unknown (if present) predictions of \code{ens_preds}.}
-#'   }
+#' @return An \code{\link{ELSIPTrain}} object.
 #' @export
-ELSIP <- function (x, y, subsample = c("none", "up", "down"), imp_n = 10,
-                   imp_method = c("pmm", "rf", "mean", "none"),
+ELSIP <- function (data, subsample = c("none", "up", "down"), n_imp = 10,
+                   imp_method = c("mean", "median", "mice_pmm", "mice_rf", "mipca"),
                    train_prop = logical(), classifier = list(),
                    pairwise_stack = TRUE, meta_classifier = list(),
-                   ensemble_single = FALSE, seed = NULL, verbose = FALSE,
-                   ...) {
-  # Check validity of arguments
-  checkDataFrame(x)
-  checkFactor(y, len = nrow(x))
-  imp_n <- asInt(imp_n)
-  qassert(imp_n, "I1[1,)")
+                   ensemble_single = FALSE, seed = NULL, verbose = FALSE) {
+  assertClass(data, "ELSIPData")
+  subsample <- match.arg(subsample)
+  n_imp <- asInt(n_imp)
+  qassert(n_imp, "I1[1,)")
+  imp_method <- match.arg(imp_method)
+
   qassert(train_prop, "N1(0,1]")
 
-  caret_items <- c("method", "trainControl", "tuneGrid")
-  checkList(classifier, any.missing = FALSE)
-  if (!classifier$trainControl$savePredictions) {
-    classifier$trainControl$savePredictions <- TRUE
+  assertList(classifier, len = 3)
+  if (n_imp > 1 | (n_imp == 1 & ensemble_single)) {
+    assertList(meta_classifier, len = 3)
   }
-  assertNames(names(classifier), permutation.of = caret_items)
-  checkList(meta_classifier, any.missing = FALSE)
-  if (imp_n > 1 | (imp_n == 1 & ensemble_single)) {
-    assertNames(names(meta_classifier), permutation.of = caret_items)
-    if (!meta_classifier$trainControl$savePredictions) {
-      meta_classifier$trainControl$savePredictions <- TRUE
-    }
-  }
-  checkLogical(ensemble_single)
+  assertLogical(ensemble_single)
 
-  imp_method <- match.arg(imp_method)
-  subsample <- match.arg(subsample)
+  assert(
+    checkNull(seed),
+    checkIntegerish(seed)
+  )
 
-  if (!any(is.na(x)) & imp_method != "none") {
-    message("Warning: Dataset is complete, setting imputation type to none")
-    imp_method <- "none"
-    if (imp_n > 1) {
-      stop("Cannot generate multiple imputations for complete datasets")
-    }
+  assertLogical(verbose, len = 1, any.missing = FALSE)
+  if (!any(is.na(data$x)) & imp_method != "none") {
+    stop("Dataset is already complete")
+    # message("Warning: Dataset is complete, setting imputation type to none")
+    # imp_method <- "none"
+    # if (n_imp > 1) {
+    #   stop("Cannot generate multiple imputations for complete datasets")
+    # }
   }
-  if (imp_method == "mean" & imp_n > 1) {
+  if (imp_method == "mean" & n_imp > 1) {
     stop("Cannot produce multiple imputations with mean value replacement")
   }
-  if (ensemble_single & imp_n > 1) {
+  if (ensemble_single & n_imp > 1) {
     message("Warning: ensemble_single must be FALSE if imp_n > 1")
     ensemble_single <- FALSE
   }
-  if (pairwise_stack & imp_n == 1) {
+  if (pairwise_stack & n_imp == 1) {
     message("Warning: pairwise ensemble stacking valid only if imp_n > 1")
     pairwise_stack <- FALSE
   }
 
-  # Identify any unknown samples
-  x$data_type <- rep("Training", nrow(x))
-  x$data_type[is.na(y)] <- "Unknown"
-
-  if (verbose) {
-    cat("Ensemble learning using stacked imputation predictions\n\n")
-    cat(nrow(x), "testing and training samples")
-    if ("Unknown" %in% x$data_type) {
-      cat(",", sum(x$data_type == "Unknown", na.rm = T), "unknown samples")
-    }
-    cat("\n", ncol(x), " variables in dataset\n", sep = "")
-  }
-
-  # Subsample testing and training data, if requested
   if (subsample != "none") {
-    ss_args <- list(x = x[x$data_type != "Unknown",],
-                    y = y[x$data_type != "Unknown"])
-    if (subsample == "up") {
-      ss_fn <- upSample
-    } else if (subsample == "down") {
-      ss_fn <- downSample
-    }
-    set.seed(seed = seed)
-    x <- do.call(ss_fn, ss_args)
-    x <- merge(x, x[x$data_type == "Unknown",], all = TRUE, sort = FALSE)
-  } else {
-    x$Class <- y
-    if (verbose) cat("Assigning ")
+    data <- subsample_data(type = subsample, seed = seed)
   }
 
-  training_idx <- createDataPartition(x$Class[x$data_type != "Unknown"],
-                                      p = train_prop, list = FALSE)
-  x$data_type[x$data_type != "Unknown"][-training_idx] <- "Test"
-  x$data_type <- as.factor(x$data_type)
+  res <- partition_data(data, train_prop, seed = seed) %>%
+    impute_data(imp_method, n = n_imp, seed = seed) %>%
+    train(classifier)
 
-  if (verbose) cat(sum(x$data_type == "Training"), "training and",
-                   nrow(x) - sum(x$data_type == "Test"), "testing samples\n")
-
-  if (imp_method != "mean") {
-    if (verbose) cat("Generating ", imp_n, " imputated",
-                     ifelse(imp_n > 1, "s", ""), " datasets...\n",
-                     sep = "")
-    x <- mice(x, m = imp_n, method = imp_method,
-              seed = ifelse(is.null(seed), NA, seed),
-              printFlag = verbose) %>%
-      complete(action = "all")
-  } else {
-    if (imp_method == "mean") {
-      if (verbose) cat("Imputing using mean column replacement\n")
-      for (col in which(!names(x) %in% c("Class", "data_type"))) {
-        if (class(x[,col]) != "numeric") {
-          stop("mean value imputation only supports numeric data")
-        }
-        if (any(is.na(x[,col]))) {
-          x[,col][is.na(x[,col])] <- mean(x[,col], na.rm = T)
-        }
-      }
-    } else {
-      if (verbose) cat("Dataset complete, skipping imputation\n")
-    }
-    x <- list(x)
-  }
-
-  # if (!is.null(imp_transform)) {
-  #   x_transform <- do.call(imp_transform, x)
-  #
-  # }
-
-  x <- lapply(x, function (m) split(m, m$data_type))
-
-  all_models <- c()
-  for (imp in 1:imp_n) {
-    if (verbose) cat(sprintf("\rFitting models to training sets (%i/%i)...",
-                             imp, imp_n))
-    class_cols <- names(x[[imp]]$Training) %in% c("Class", "data_type")
-    trained <- train(
-      x = x[[imp]]$Training[!class_cols],
-      y = unlist(x[[imp]]$Training$Class),
-      method = classifier$method,
-      trControl = classifier$trainControl,
-      tuneGrid = classifier$tuneGrid,
-      ...
-    )
-    all_models[[imp]] <- trained
-  }
-
-  if (verbose) cat("\nStacking predictions from training sets...\n")
-  stack_pred <- function (mis, models, pairwise_stack) {
-    if (length(mis) != length(models)) {
-      stop()
-    }
-    all_idx <- 1:length(models)
-    class_col <- names(mis[[1]]) %in% c("Class", "data_type")
-    data_type <- unique(mis[[1]]$data_type)
-    if (length(data_type) > 1) {
-      stop("Mixed data types not allowed")
-    }
-    if (length(all_idx) > 1 & pairwise_stack) {
-      all_mis <- Reduce(function(mi1, mi2) rbind(mi1, mi2), mis)
-      all_preds <- lapply(all_idx, function (idx) {
-        preds <- extractPrediction(
-          models,
-          testX = all_mis[,!class_col],
-          testY = all_mis$Class)
-        preds <- preds[preds$dataType == "Test",]
-        if (data_type != "Test") {
-          preds$dataType <- data_type
-        }
-        split(preds, preds$object)
-      })
-      all_preds <- unlist(all_preds, recursive = FALSE, use.names = FALSE)
-    } else {
-      all_preds <- lapply(all_idx, function (idx) {
-        preds <- extractPrediction(
-          models[idx],
-          testX = mis[[idx]][,!class_col],
-          testY = mis[[idx]]$Class)
-        preds <- preds[preds$dataType == "Test",]
-        if (data_type != "Test") {
-          preds$dataType <- data_type
-        }
-        preds
-      })
-    }
-    ens_stack <- sapply(all_preds, function (r) {
-      as.numeric(r$pred)
-    })
-    if (is.vector(ens_stack)) {
-      ens_stack <- matrix(ens_stack, nrow = 1)
-    }
-
-    list(all_preds = all_preds,
-         ens_stack = as.data.frame(ens_stack))
-  }
-
-  res <- list()
-  pred_args <- list()
-
-  if (imp_n > 1 | (imp_n == 1 & ensemble_single)) {
-    # Stack the predictions for each imputed matrix
-    if (verbose) cat("Stacking predictions...\n")
-    ens_preds <- lapply(names(x[[1]]), function (s) {
-      stack <- lapply(x, function (m) m[[s]])
-      stack_pred(stack, all_models, pairwise_stack)
-    })
-    names(ens_preds) <- names(x[[1]])
-
-    if ("Unknown" %in% names(x)) {
-      pred_args$unkX <- ens_preds$Unknown$ens_stack
-    }
-
-    # Use an ensemble classifier to make final classification
-    if (verbose) cat("Training ensemble classifier...\n")
-    ens_model <- train(
-      x = ens_preds$Training$ens_stack,
-      y = ens_preds$Training$all_preds[[1]]$obs,
-      method = meta_classifier$method,
-      trControl = meta_classifier$trainControl,
-      tuneGrid = meta_classifier$tuneGrid,
-      ...
-    )
-
-    res$models <- all_models
-    res$ens_preds <- ens_preds
-    res$ens_model <- ens_model
-    # Use ensemble model to classify the ensemble test observations
-    if (verbose) cat("Predicting training ensemble model...\n")
-    pred_args$models <- list(ens_model)
-    pred_args$testX <- ens_preds$Test$ens_stack
-    pred_args$testY <- ens_preds$Test$all_preds[[1]]$obs
-    res$preds <- do.call(extractPrediction, pred_args)
-  } else {
-    class_col <- names(x[[1]]$Test) %in% c("Class", "data_type")
-    pred_args$models <- all_models
-    pred_args$testX <- x[[1]]$Test[!class_col]
-    pred_args$testY <- x[[1]]$Test$Class
-    if ("Unknown" %in% names(x)) {
-      pred_args$unkX <- x[[1]]$Unknown[!class_col]
-    }
-    res$model <- all_models[[1]]
-    res$pred <- do.call(extractPrediction, pred_args)
+  if (n_imp > 1 | n_imp == 1 & ensemble_single) {
+    res <- ensemble(res,
+                    classifier = meta_classifier,
+                    pairwise_stack = pairwise_stack,
+                    ensemble_single = ensemble_single)
   }
   res
 }
