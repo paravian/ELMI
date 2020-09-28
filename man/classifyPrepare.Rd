@@ -27,19 +27,18 @@ variables.}
 \item{ratios}{a character vector of columns representing ratio variables.}
 }
 \value{
-a \code{data.frame} object containing the outcome variable as a
-  factor and the transformed variables from \code{data}.
+An \code{\link{ELSIPData}} object.
 }
 \description{
 This function processes datasets containing numerical and/or discrete value
-datasets into a format suitable for analysis using \code{\link{ELSIP}} and
-\code{\link{multi_ELSIP}}, and using transformations specifically suited to
-each type of data. Presently, three types of data types are supported by
-\code{classifyPrepare}: continuous, ratio, and discrete. The variables
-desired are specified according to the named columns in \code{data} for
-any of the three aforementioned data types. Named columns in
-\code{discrete}, \code{continuous} and \code{ratios} will appear in the
-returned data frame, with the following transformations applied:
+datasets into a format suitable for analysis using \code{\link{ELSIP}} using
+transformations specifically suited to each type of data. Presently, three
+types of data types are supported by \code{classifyPrepare}: continuous,
+ratio, and discrete. The variables desired are specified according to the
+named columns in \code{data} for any of the three aforementioned data types.
+Named columns in \code{discrete}, \code{continuous} and \code{ratios} will
+appear in the returned data frame, with the following transformations
+applied:
 \itemize{
   \item{\code{discrete} variables are included as is, but converted to
   \code{factor}s;}
