@@ -17,4 +17,5 @@ Imports:
     gtools,
     magrittr,
     mice,
+    R6,
     stats
