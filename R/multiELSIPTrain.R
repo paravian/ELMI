@@ -2,7 +2,7 @@
 #'
 #' @name multiELSIPTrain
 #' @importFrom R6 R6Class
-#' @importFrom checkmate assertClass assertList assertTRUE
+#' @importFrom checkmate assertList assertNames assertTRUE
 #' @field .model A list containing the results of
 #'   \code{\link{train.ELSIPData}}. The following named items are included:
 #'   \describe{

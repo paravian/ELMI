@@ -8,7 +8,7 @@
 }
 \arguments{
 \item{data}{An \code{\link{multiELSIPData}} object generated from
-\code{\link{impute_data}}.}
+\code{\link[ELSIP]{impute}}.}
 
 \item{classifier}{a list defining the model and model parameters to use
 during classification of the multiply imputed training and testing data.
