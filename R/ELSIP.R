@@ -1,8 +1,8 @@
 #' Ensemble learning using stacked imputation predictions
 #'
 #' This is a convenience function for performing ensemble learning in
-#' \code{ELSIP}. It equivalent to using, in order, \code{\link{subsample_data}}
-#' (optional), \code{\link{partition_data}}, \code{\link{impute_data}},
+#' \code{ELSIP}. It equivalent to using, in order, \code{\link{subsample}}
+#' (optional), \code{\link{partition}}, \code{\link{impute}},
 #' \code{\link{train.ELSIPData}}, and \code{\link{ensemble}} (optional).
 #' @importFrom checkmate asInt assert assertClass assertList assertLogical
 #'   qassert
@@ -89,11 +89,11 @@ ELSIP <- function (data, subsample = c("none", "up", "down"), n_imp = 10,
   }
 
   if (subsample != "none") {
-    data <- subsample_data(type = subsample, seed = seed)
+    data <- subsample(type = subsample, seed = seed)
   }
 
-  res <- partition_data(data, train_prop, seed = seed) %>%
-    impute_data(imp_method, n = n_imp, seed = seed) %>%
+  res <- partition(data, train_prop, seed = seed) %>%
+    impute(imp_method, n = n_imp, seed = seed) %>%
     train(classifier)
 
   if (n_imp > 1 | n_imp == 1 & ensemble_single) {

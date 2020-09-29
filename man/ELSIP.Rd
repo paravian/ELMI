@@ -69,7 +69,7 @@ An \code{\link{ELSIPTrain}} object.
 }
 \description{
 This is a convenience function for performing ensemble learning in
-\code{ELSIP}. It equivalent to using, in order, \code{\link{subsample_data}}
-(optional), \code{\link{partition_data}}, \code{\link{impute_data}},
+\code{ELSIP}. It equivalent to using, in order, \code{\link{subsample}}
+(optional), \code{\link{partition}}, \code{\link{impute}},
 \code{\link{train.ELSIPData}}, and \code{\link{ensemble}} (optional).
 }
