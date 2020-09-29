@@ -24,7 +24,7 @@
 #' @export
 impute.ELSIPData <- function (x, method = "mean", n = 1, seed = NULL,
                               verbose = FALSE, ...) {
-  assertClass(data, "ELSIPData")
+  assertClass(x, "ELSIPData")
   assertChoice(method, c("mean", "median", "mice_pmm", "mice_rf", "mipca"))
   n <- asInt(n)
   assertInt(n, lower = 1)
@@ -39,25 +39,25 @@ impute.ELSIPData <- function (x, method = "mean", n = 1, seed = NULL,
 
   if (length(grep("mice", method))) {
     method <- gsub("mice_", "", method)
-    imp <- mice(data$x, m = n, method = method,
+    imp <- mice(x$x, m = n, method = method,
                 seed = ifelse(is.null(seed), NA, seed),
                 printFlag = verbose) %>%
       complete(action = "all")
     names(imp) <- NULL
   } else {
-    assertSubset(sapply(data$x, class), c("numeric"))
+    assertSubset(sapply(x$x, class), c("numeric"))
     if (method == "mipca") {
-      nb <- estim_ncpPCA(data$x)
-      imp <- MIPCA(data$x, nb$ncp, method.mi = "Bayes", nboot = n)$res.MI
+      nb <- estim_ncpPCA(x$x)
+      imp <- MIPCA(x$x, nb$ncp, method.mi = "Bayes", nboot = n)$res.MI
     } else if (method %in% c("mean", "median")) {
-      imp <- sapply(data$x, function (col) Hmisc::impute(col, get(method))) %>%
+      imp <- sapply(x$x, function (col) Hmisc::impute(col, get(method))) %>%
         as.data.frame() %>%
         list()
     }
   }
 
   data <- lapply(imp, function (i) {
-    ELSIPData$new(x = i, y = data$y, data_type = data$data_type)
+    ELSIPData$new(x = i, y = x$y, data_type = x$data_type)
   })
   if (length(data) > 1) {
     res <- do.call(multiELSIPData$new, data)
