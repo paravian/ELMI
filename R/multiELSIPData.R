@@ -4,7 +4,7 @@
 #' @importFrom R6 R6Class
 #' @importFrom checkmate assertList assertTRUE
 #' @importFrom gtools combinations
-#' @field ... Two or more objects of type \code{\link{ELSIPData}}.
+#' @field data Two or more objects of type \code{\link{ELSIPData}}.
 NULL
 
 multiELSIPData <- R6Class("multiELSIPData",

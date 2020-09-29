@@ -9,6 +9,6 @@ multiELSIPData class
 \section{Fields}{
 
 \describe{
-\item{\code{...}}{Two or more objects of type \code{\link{ELSIPData}}.}
+\item{\code{data}}{Two or more objects of type \code{\link{ELSIPData}}.}
 }}
 
