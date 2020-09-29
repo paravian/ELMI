@@ -1,7 +1,7 @@
 #' ELSIP trainer
 #'
 #' @importFrom caret train
-#' @importFrom checkmate assertClass
+#' @importFrom checkmate assertClass assertFactor
 #' @param data An \code{\link{ELSIPData}} object, such as the output of
 #'   \code{\link{classifyPrepare}}.
 #' @param classifier a list defining the model and model parameters to use
@@ -20,6 +20,8 @@
 #' @export
 train.ELSIPData <- function (data, classifier) {
   assertClass(data, c("ELSIPData"))
+  assertFactor(data$data_type, levels = c("Training", "Test", "Unknown"),
+               min.levels = 2)
   .ELSIPTrain(list(data), classifier)
 }
 
@@ -44,6 +46,10 @@ train.ELSIPData <- function (data, classifier) {
 #' @export
 train.multiELSIPData <- function (data, classifier) {
   assertClass(data, c("multiELSIPData"))
+  for (item in data$data) {
+    assertFactor(item$data_type, levels = c("Training", "Test", "Unknown"),
+                 min.levels = 2)
+  }
   .ELSIPTrain(data$data, classifier)
 }
 
