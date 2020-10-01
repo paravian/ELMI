@@ -4,11 +4,80 @@
 \alias{multiELSIPData}
 \title{multiELSIPData class}
 \description{
-multiELSIPData class
+An object containing multiple \code{\link{ELSIPData}} objects derived from
+the a single data source.
 }
-\section{Fields}{
-
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{data}}{Two or more objects of type \code{\link{ELSIPData}}.}
-}}
+\item{\code{data}}{A list of two or more objects of type
+\code{\link{ELSIPData}}. This is a read only value.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{multiELSIPData$new()}}
+\item \href{#method-print}{\code{multiELSIPData$print()}}
+\item \href{#method-clone}{\code{multiELSIPData$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+Create a new \code{multiELSIPData} object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{multiELSIPData$new(...)}\if{html}{\out{</div>}}
+}
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{One or more \code{\link{ELSIPData}} objects. The \code{x}
+value of each object must have equal dimensions and contain the same
+missing or imputed data pattern. The \code{y} and \code{data_type}
+values of each object must also be identical.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{multiELSIPData} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print a \code{multiELSIPData} object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{multiELSIPData$print(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Ignored.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{multiELSIPData$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

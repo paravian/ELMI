@@ -4,22 +4,95 @@
 \alias{ELSIPData}
 \title{ELSIPData class}
 \description{
-ELSIPData class
+An object containing continuous/discrete numerical and/or categorical
+multivariate data with associated classes and model training partitioning
+information.
 }
-\section{Fields}{
-
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{x}}{a data frame object where samples are in rows and features are in
-columns.}
+\item{\code{x}}{A data frame object where samples are in rows and features are
+in columns. This is a read only value.}
 
-\item{\code{y}}{a factor vector indicating the observed class for each row. All
-samples intended for model training and testing purposes should have an
-assigned class. Any sample that does not have an assigned class
-(i.e., \code{NA}) will be interpreted as an unknown sample and classified
-after model training and testing.}
+\item{\code{y}}{A factor vector indicating the observed class for each row.
+This is a read only value.}
 
-\item{\code{data_type}}{an optional factor vector indicating the model class for
-each observation. The allowed options are \code{"Training"},
+\item{\code{data_type}}{A factor vector indicating the model class for each
+observation, if defined, or \code{NULL}.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{ELSIPData$new()}}
+\item \href{#method-print}{\code{ELSIPData$print()}}
+\item \href{#method-clone}{\code{ELSIPData$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+Create a new \code{ELSIPData} object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ELSIPData$new(x, y, data_type = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{A data frame object where samples are in rows and features are
+in columns.}
+
+\item{\code{y}}{A factor vector indicating the observed class for each row. All
+samples intended for model training and testing purposes should have
+an assigned class. Any sample that does not have an assigned class
+(i.e., \code{NA}) will be interpreted as an unknown sample and
+classified after model training and testing.}
+
+\item{\code{data_type}}{An optional factor vector indicating the model class
+for each observation. The allowed options are \code{"Training"},
 \code{"Test"}, and \code{"Unknown"}.}
-}}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{ELSIPData} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print an \code{ELSIPData} object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ELSIPData$print(...)}\if{html}{\out{</div>}}
+}
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Ignored.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ELSIPData$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

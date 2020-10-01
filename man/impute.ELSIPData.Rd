@@ -21,11 +21,16 @@ is "\code{mean}" or "\code{median}".}
 
 \item{seed}{an integer value to initialise the multiple imputation.}
 
-\item{verbose}{a logical indicating wether to output information to the
+\item{verbose}{a logical indicating whether to output information to the
 console during multiple imputation.}
 
 \item{...}{ignored}
 }
+\value{
+an \code{\link{ELSIPData}} or \code{\link{multiELSIPData}} object
+  depending if \code{n} is one or more than one respectively.
+}
 \description{
-Impute multivariate data
+This function takes a dataset with missing values and generates (multiply)
+imputed datasets according to one of a number of different methods.
 }

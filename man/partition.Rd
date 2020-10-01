@@ -7,8 +7,8 @@
 partition(data, train_prop, seed = NULL)
 }
 \arguments{
-\item{data}{object that inherits \code{\link{ELSIPData}}, such as the output
-of \code{\link{classifyPrepare}}.}
+\item{data}{an \code{\link{ELSIPData}} object, such as the output of
+\code{\link{classifyPrepare}}.}
 
 \item{train_prop}{a numeric indicating what proportion of observations will
 constitute the training dataset. Must be a number between 0 and 1, not
@@ -16,6 +16,11 @@ inclusive.}
 
 \item{seed}{a random seed for initialising the creation of partitions.}
 }
+\value{
+an \code{\link{ELSIPData}} object.
+}
 \description{
-Partition multivariate data
+Thus function allocates samples of a dataset into training and testing
+samples depending on class. Samples with a \code{NA} class are assigned
+to a separate "Unknown" partition.
 }

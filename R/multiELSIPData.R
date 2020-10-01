@@ -1,17 +1,16 @@
 #' multiELSIPData class
 #'
-#' @name multiELSIPData
+#' @description
+#' An object containing multiple \code{\link{ELSIPData}} objects derived from
+#' the a single data source.
 #' @importFrom R6 R6Class
-#' @importFrom checkmate assertList assertTRUE
-#' @importFrom gtools combinations
-#' @field data Two or more objects of type \code{\link{ELSIPData}}.
-NULL
-
 multiELSIPData <- R6Class("multiELSIPData",
   private = list(
     .data = NULL
   ),
   active = list(
+    #' @field data A list of two or more objects of type
+    #'   \code{\link{ELSIPData}}. This is a read only value.
     data = function (value) {
       if (missing(value)) {
         private$.data
@@ -21,7 +20,15 @@ multiELSIPData <- R6Class("multiELSIPData",
     }
   ),
   public = list(
-    # initialize = function(x, y, data_type = NULL, imputations = NULL) {
+    #' @description
+    #' Create a new \code{multiELSIPData} object.
+    #' @param ... One or more \code{\link{ELSIPData}} objects. The \code{x}
+    #'   value of each object must have equal dimensions and contain the same
+    #'   missing or imputed data pattern. The \code{y} and \code{data_type}
+    #'   values of each object must also be identical.
+    #' @importFrom checkmate assertList assertTRUE
+    #' @importFrom gtools combinations
+    #' @return A new \code{multiELSIPData} object.
     initialize = function(...) {
       data <- list(...)
       assertList(data, min.len = 2, types = "ELSIPData")
@@ -46,6 +53,30 @@ multiELSIPData <- R6Class("multiELSIPData",
       }
 
       private$.data <- data
+    },
+    #' @description
+    #' Print a \code{multiELSIPData} object.
+    #' @param ... Ignored.
+    #' @importFrom magrittr %>%
+    print = function (...) {
+      cat("Multiple ELSIP data:\n\n")
+      cat(length(private$.data), "datasets;",
+          nrow(private$.data[[1]]$x), "observations of",
+          ncol(private$.data[[1]]$x), "variables\n")
+      if (!is.null(private$.data[[1]]$data_type)) {
+        types <- tapply(private$.data[[1]]$data_type,
+                        private$.data[[1]]$data_type, length) %>%
+          sort(decreasing = T)
+        for (n in names(types)) {
+          cat(types[n], casefold(n), sep = " ")
+          idx <- which(n == names(types))
+          if (idx < length(types)) {
+            cat(ifelse(idx < length(types) - 1, ", ", " and "))
+          }
+        }
+        cat(" samples\n")
+      }
+      invisible(self)
     }
   )
 )

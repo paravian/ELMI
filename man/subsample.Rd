@@ -7,11 +7,13 @@
 subsample(data, type = c("up", "down"), seed = NULL)
 }
 \arguments{
-\item{data}{an object that inherits \code{\link{ELSIPData}}, such as the output
-of \code{\link{classifyPrepare}}.}
+\item{data}{an \code{\link{ELSIPData}} object, such as the output of
+\code{\link{classifyPrepare}}.}
 
 \item{type}{a single length character indicating the type of subsampling to
-perform.}
+perform. Current options are \code{"up"} (upsampling; using
+\code{\link[caret]{upSample}}) and \code{"down"}
+(downsampling; using \code{\link[caret]{downSample}}).}
 
 \item{seed}{a random seed for initializing the subsampling.}
 }
@@ -19,5 +21,7 @@ perform.}
 An \code{\link{ELSIPData}} object.
 }
 \description{
-Subsample multivariate datasets
+This function performs subsampling of multivariate datasets where the
+proportions of the outcome variables may be inbalanced, which can lead to
+poor preduction accuracy.
 }

@@ -1,11 +1,16 @@
 #' Subsample multivariate datasets
 #'
+#' This function performs subsampling of multivariate datasets where the
+#' proportions of the outcome variables may be inbalanced, which can lead to
+#' poor preduction accuracy.
 #' @importFrom caret downSample upSample
 #' @importFrom checkmate assertCharacter assertClass checkIntegerish checkNull
-#' @param data an object that inherits \code{\link{ELSIPData}}, such as the output
-#'   of \code{\link{classifyPrepare}}.
+#' @param data an \code{\link{ELSIPData}} object, such as the output of
+#'   \code{\link{classifyPrepare}}.
 #' @param type a single length character indicating the type of subsampling to
-#'   perform.
+#'   perform. Current options are \code{"up"} (upsampling; using
+#'   \code{\link[caret]{upSample}}) and \code{"down"}
+#'   (downsampling; using \code{\link[caret]{downSample}}).
 #' @param seed a random seed for initializing the subsampling.
 #' @return An \code{\link{ELSIPData}} object.
 #' @export

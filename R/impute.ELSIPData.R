@@ -1,5 +1,7 @@
 #' Impute multivariate data
 #'
+#' This function takes a dataset with missing values and generates (multiply)
+#' imputed datasets according to one of a number of different methods.
 #' @importFrom caret createDataPartition
 #' @importFrom checkmate asInt assertClass assertChoice assertInt assertLogical
 #'   assertSubset checkNull checkIntegerish qassert
@@ -16,10 +18,13 @@
 #'   number of imputations to generate. Note that multiple imputations (i.e.,
 #'   values of \code{n} greater than 1, cannot be generated when \code{method}
 #'   is "\code{mean}" or "\code{median}".
-#' @param verbose a logical indicating wether to output information to the
+#' @param verbose a logical indicating whether to output information to the
 #'   console during multiple imputation.
 #' @param ... ignored
 #' @param seed an integer value to initialise the multiple imputation.
+#' @return an \code{\link{ELSIPData}} or \code{\link{multiELSIPData}} object
+#'   depending if \code{n} is one or more than one respectively.
+#' @include impute.ELSIPData.R
 #' @method impute ELSIPData
 #' @export
 impute.ELSIPData <- function (x, method = "mean", n = 1, seed = NULL,

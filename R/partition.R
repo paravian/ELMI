@@ -1,13 +1,17 @@
 #' Partition multivariate data
 #'
+#' Thus function allocates samples of a dataset into training and testing
+#' samples depending on class. Samples with a \code{NA} class are assigned
+#' to a separate "Unknown" partition.
 #' @importFrom caret createDataPartition
 #' @importFrom checkmate assertClass qassert
-#' @param data object that inherits \code{\link{ELSIPData}}, such as the output
-#'   of \code{\link{classifyPrepare}}.
+#' @param data an \code{\link{ELSIPData}} object, such as the output of
+#'   \code{\link{classifyPrepare}}.
 #' @param train_prop a numeric indicating what proportion of observations will
 #'   constitute the training dataset. Must be a number between 0 and 1, not
 #'   inclusive.
 #' @param seed a random seed for initialising the creation of partitions.
+#' @return an \code{\link{ELSIPData}} object.
 #' @export
 partition <- function (data, train_prop, seed = NULL) {
   assertClass(data, "ELSIPData")
