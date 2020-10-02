@@ -38,9 +38,9 @@ impute.ELSIPData <- function (x, method = "mean", n = 1, seed = NULL,
   }
   assert(
     checkNull(seed),
-    checkIntegerish(seed)
+    checkIntegerish(seed, len = 1)
   )
-  assertLogical(verbose)
+  assertLogical(verbose, len = 1)
 
   if (length(grep("mice", method))) {
     method <- gsub("mice_", "", method)
