@@ -5,12 +5,12 @@
 \alias{train.multiELSIPData}
 \title{ELSIP trainer}
 \usage{
-\method{train}{ELSIPData}(data, classifier)
+\method{train}{ELSIPData}(x, classifier, ...)
 
-\method{train}{multiELSIPData}(data, classifier)
+\method{train}{multiELSIPData}(x, classifier, ...)
 }
 \arguments{
-\item{data}{An \code{\link{multiELSIPData}} object generated from
+\item{x}{An \code{\link{multiELSIPData}} object generated from
 \code{\link[ELSIP:impute.ELSIPData]{impute}}.}
 
 \item{classifier}{a list defining the model and model parameters to use
@@ -24,10 +24,12 @@ The list should contain the following named items:
   \item{tuneGrid}{a list defining the tuning grid to use for
     training the \code{caret} model.}
 }}
+
+\item{...}{Ignored.}
 }
 \value{
 A \code{\link{ELSIPTrain}} or \code{\link{multiELSIPTrain}} object
-  if \code{data} is a \code{\link{ELSIPData}} or
+  if \code{x} is a \code{\link{ELSIPData}} or
   \code{\link{multiELSIPData}} object respectively.
 }
 \description{
