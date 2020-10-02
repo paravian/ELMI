@@ -90,8 +90,8 @@ train.multiELSIPData <- function (x, classifier, ...) {
     combine = "and"
   )
 
-  classifier$trainControl[c("savePredictions", "returnData")] <- TRUE
-  classifier$trainControl$fitBest <- FALSE
+  classifier$train_control[c("savePredictions", "returnData")] <- TRUE
+  classifier$train_control$fitBest <- FALSE
 
   res <- lapply(data, function (imp) {
     model <- train(
