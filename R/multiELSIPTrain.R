@@ -52,7 +52,7 @@ multiELSIPTrain <- R6Class("multiELSIPTrain",
     print = function (...) {
       cat("Multi ELSIP train:\n\n")
 
-      cat(length(private$.model), "trained models;")
+      cat(length(private$.train), "trained models")
       # cat(private$.model$modelInfo$label, " (\"", private$.model$method, "\")", sep = "")
     }
   )
