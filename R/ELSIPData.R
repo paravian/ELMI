@@ -31,7 +31,7 @@ ELSIPData <- R6Class("ELSIPData",
       }
     },
     #' @importFrom checkmate assert assertDataFrame assertFactor checkFactor
-    #'   checkNull
+    #'   checkNames checkNull
     #' @importFrom magrittr %>%
     #' @field data_type A factor vector indicating the model class for each
     #'   observation, if defined, or \code{NULL}.
@@ -41,8 +41,12 @@ ELSIPData <- R6Class("ELSIPData",
       } else {
         assert(
           checkNull(value),
-          checkFactor(value, len = nrow(private$.x),
-                      levels = c("Training", "Test", "Unknown"))
+          assert(
+            checkFactor(value, len = nrow(private$.x)),
+            checkNames(names(value),
+                       subset.of = c("Training", "Test", "Unknown"),
+                       must.include = c("Training", "Test"))
+          )
         )
         private$.data_type <- value
         self
